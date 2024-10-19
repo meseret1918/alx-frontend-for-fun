@@ -1,116 +1,62 @@
 #!/usr/bin/python3
-import sys
-import os
+"""
+This is a script to convert a Markdown file to HTML.
+
+Usage:
+    ./markdown2html.py [input_file] [output_file]
+
+Arguments:
+    input_file: the name of the Markdown file to be converted
+    output_file: the name of the output HTML file
+
+Example:
+    ./markdown2html.py README.md README.html
+"""
+
+import argparse
+import pathlib
+import re
 
 
-def parse_headings(line):
-    level = line.count('#')
-    if level > 0 and level <= 6:
-        content = line[level:].strip()
-        return f"<h{level}>{content}</h{level}>"
-    return None
+def convert_md_to_html(input_file, output_file):
+    '''
+    Converts markdown file to HTML file
+    '''
+    # Read the contents of the input file
+    with open(input_file, encoding='utf-8') as f:
+        md_content = f.readlines()
 
-
-def parse_unordered_list(lines):
-    output = "<ul>\n"
-    for line in lines:
-        if line.startswith('- '):
-            item = line[2:].strip()
-            output += f"<li>{item}</li>\n"
-    output += "</ul>\n"
-    return output
-
-
-def parse_ordered_list(lines):
-    output = "<ol>\n"
-    for line in lines:
-        if line.startswith('* '):
-            item = line[2:].strip()
-            output += f"<li>{item}</li>\n"
-    output += "</ol>\n"
-    return output
-
-
-def parse_paragraphs(lines):
-    output = ""
-    paragraph = ""
-    for line in lines:
-        if line.strip() == "":
-            if paragraph:
-                output += f"<p>{paragraph.strip()}</p>\n"
-                paragraph = ""
+    html_content = []
+    for line in md_content:
+        # Check if the line is a heading
+        match = re.match(r'(#){1,6} (.*)', line)
+        if match:
+            # Get the level of the heading
+            h_level = len(match.group(1))
+            # Get the content of the heading
+            h_content = match.group(2)
+            # Append the HTML equivalent of the heading
+            html_content.append(f'<h{h_level}>{h_content}</h{h_level}>\n')
         else:
-            paragraph += line + "\n"
-    if paragraph:
-        output += f"<p>{paragraph.strip()}</p>\n"
-    return output
+            html_content.append(line)
+
+    # Write the HTML content to the output file
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.writelines(html_content)
 
 
-def parse_bold_and_emphasis(line):
-    line = line.replace("**", "<b>").replace("__", "<em>")
-    return line.replace("<b>", "<b>").replace("<em>", "</em>")
+if __name__ == '__main__':
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Convert markdown to HTML')
+    parser.add_argument('input_file', help='path to input markdown file')
+    parser.add_argument('output_file', help='path to output HTML file')
+    args = parser.parse_args()
 
-
-def convert_markdown_to_html(markdown_file, output_file):
-    with open(markdown_file, 'r') as f:
-        lines = f.readlines()
-
-    html_output = ""
-    for line in lines:
-        # Parse headings
-        heading = parse_headings(line)
-        if heading:
-            html_output += heading
-            continue
-
-        # Parse unordered lists
-        unordered_list = parse_unordered_list(lines)
-        if unordered_list:
-            html_output += unordered_list
-            continue
-
-        # Parse ordered lists
-        ordered_list = parse_ordered_list(lines)
-        if ordered_list:
-            html_output += ordered_list
-            continue
-
-        # Parse paragraphs
-        paragraph = parse_paragraphs(lines)
-        if paragraph:
-            html_output += paragraph
-            continue
-
-        # Parse bold and emphasis text
-        line = parse_bold_and_emphasis(line)
-        if line.strip():
-            html_output += line.strip() + "\n"
-
-    # Write the output to the specified HTML file
-    with open(output_file, 'w') as f:
-        f.write(html_output)
-
-
-def main():
-    # Check the number of arguments
-    if len(sys.argv) < 3:
-        print("Usage: ./markdown2html.py README.md", file=sys.stderr)
+    # Check if the input file exists
+    input_path = pathlib.Path(args.input_file)
+    if not input_path.is_file():
+        print(f'Missing {input_path}', file=sys.stderr)
         sys.exit(1)
 
-    markdown_file = sys.argv[1]
-    output_file = sys.argv[2]
-
-    # Check if the Markdown file exists
-    if not os.path.isfile(markdown_file):
-        print(f"Missing {markdown_file}", file=sys.stderr)
-        sys.exit(1)
-
-    # Convert Markdown to HTML
-    convert_markdown_to_html(markdown_file, output_file)
-
-    # If all checks passed, exit normally
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
+    # Convert the markdown file to HTML
+    convert_md_to_html(args.input_file, args.output_file)
