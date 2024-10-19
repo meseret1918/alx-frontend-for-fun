@@ -1,97 +1,109 @@
 #!/usr/bin/python3
 import sys
 import os
-import hashlib
 
-def markdown_to_html(input_file, output_file):
-    try:
-        with open(input_file, 'r') as f:
-            content = f.readlines()
-    except FileNotFoundError:
-        print(f"Missing {input_file}", file=sys.stderr)
-        sys.exit(1)
+def parse_headings(line):
+    level = line.count('#')
+    if level > 0 and level <= 6:
+        content = line[level:].strip()
+        return f"<h{level}>{content}</h{level}>"
+    return None
 
-    html_lines = []
-    in_list = False
-    list_type = None
+def parse_unordered_list(lines):
+    output = "<ul>\n"
+    for line in lines:
+        if line.startswith('- '):
+            item = line[2:].strip()
+            output += f"<li>{item}</li>\n"
+    output += "</ul>\n"
+    return output
 
-    for line in content:
-        line = line.rstrip()
+def parse_ordered_list(lines):
+    output = "<ol>\n"
+    for line in lines:
+        if line.startswith('* '):
+            item = line[2:].strip()
+            output += f"<li>{item}</li>\n"
+    output += "</ol>\n"
+    return output
 
-        # Headings
-        if line.startswith('#'):
-            heading_level = len(line.split(' ')[0])
-            heading_text = line[heading_level+1:].strip()
-            html_lines.append(f"<h{heading_level}>{heading_text}</h{heading_level}>")
+def parse_paragraphs(lines):
+    output = ""
+    paragraph = ""
+    for line in lines:
+        if line.strip() == "":
+            if paragraph:
+                output += f"<p>{paragraph.strip()}</p>\n"
+                paragraph = ""
+        else:
+            paragraph += line + "\n"
+    if paragraph:
+        output += f"<p>{paragraph.strip()}</p>\n"
+    return output
 
-        # Unordered list
-        elif line.startswith('- '):
-            if not in_list:
-                html_lines.append("<ul>")
-                in_list = True
-                list_type = 'ul'
-            html_lines.append(f"<li>{line[2:]}</li>")
+def parse_bold_and_emphasis(line):
+    line = line.replace("**", "<b>").replace("__", "<em>")
+    return line.replace("<b>", "<b>").replace("<em>", "</em>")
 
-        # Ordered list
-        elif line.startswith('* '):
-            if not in_list:
-                html_lines.append("<ol>")
-                in_list = True
-                list_type = 'ol'
-            html_lines.append(f"<li>{line[2:]}</li>")
+def convert_markdown_to_html(markdown_file, output_file):
+    with open(markdown_file, 'r') as f:
+        lines = f.readlines()
 
-        # End of list
-        elif in_list and not line.startswith(('-', '*')):
-            if list_type == 'ul':
-                html_lines.append("</ul>")
-            elif list_type == 'ol':
-                html_lines.append("</ol>")
-            in_list = False
+    html_output = ""
+    
+    for line in lines:
+        # Parse headings
+        heading = parse_headings(line)
+        if heading:
+            html_output += heading
+            continue
+        
+        # Parse unordered lists
+        unordered_list = parse_unordered_list(lines)
+        if unordered_list:
+            html_output += unordered_list
+            continue
 
-        # Paragraphs
-        elif line != "":
-            # Handling bold and emphasis
-            line = line.replace("**", "<b>").replace("__", "<em>")
-            line = line.replace("<b>", "</b>", 1).replace("<em>", "</em>", 1)
+        # Parse ordered lists
+        ordered_list = parse_ordered_list(lines)
+        if ordered_list:
+            html_output += ordered_list
+            continue
 
-            # Custom transformations: MD5 and letter removal
-            if "[[" in line:
-                start = line.find("[[")
-                end = line.find("]]", start)
-                if start != -1 and end != -1:
-                    text = line[start + 2:end]
-                    md5_hash = hashlib.md5(text.encode()).hexdigest()
-                    line = line[:start] + md5_hash + line[end + 2:]
-            
-            if "((" in line:
-                start = line.find("((")
-                end = line.find("))", start)
-                if start != -1 and end != -1:
-                    text = line[start + 2:end]
-                    transformed_text = text.replace("c", "").replace("C", "")
-                    line = line[:start] + transformed_text + line[end + 2:]
-            
-            html_lines.append(f"<p>{line}</p>")
+        # Parse paragraphs
+        paragraph = parse_paragraphs(lines)
+        if paragraph:
+            html_output += paragraph
+            continue
+        
+        # Parse bold and emphasis text
+        line = parse_bold_and_emphasis(line)
+        if line.strip():
+            html_output += line.strip() + "\n"
 
-    # Close any unclosed lists
-    if in_list:
-        if list_type == 'ul':
-            html_lines.append("</ul>")
-        elif list_type == 'ol':
-            html_lines.append("</ol>")
-
+    # Write the output to the specified HTML file
     with open(output_file, 'w') as f:
-        for html_line in html_lines:
-            f.write(html_line + '\n')
+        f.write(html_output)
 
-
-if __name__ == "__main__":
+def main():
+    # Check the number of arguments
     if len(sys.argv) < 3:
         print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
         sys.exit(1)
 
-    input_file = sys.argv[1]
+    markdown_file = sys.argv[1]
     output_file = sys.argv[2]
 
-    markdown_to_html(input_file, output_file)
+    # Check if the Markdown file exists
+    if not os.path.isfile(markdown_file):
+        print(f"Missing {markdown_file}", file=sys.stderr)
+        sys.exit(1)
+
+    # Convert Markdown to HTML
+    convert_markdown_to_html(markdown_file, output_file)
+
+    # If all checks passed, exit normally
     sys.exit(0)
+
+if __name__ == "__main__":
+    main()
