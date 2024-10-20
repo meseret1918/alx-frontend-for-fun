@@ -7,18 +7,22 @@ import sys
 import os
 import hashlib
 
+
 def print_usage_and_exit():
-    print("Usage: ./markdown2html.py <input_file> <output_file>", file=sys.stderr)
+    print("Usage: ./markdown2html.py <input_file> <output_file>",
+          file=sys.stderr)
     sys.exit(1)
+
 
 def file_error_and_exit(filename):
     print(f"Missing {filename}", file=sys.stderr)
     sys.exit(1)
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print_usage_and_exit()
-    
+
     markdown_file = sys.argv[1]
     html_file = sys.argv[2]
 
@@ -44,7 +48,8 @@ if __name__ == "__main__":
                 in_ol = False
             heading_level = len(line.split(' ')[0])
             heading_text = line[heading_level + 1:]
-            html_content.append(f"<h{heading_level}>{heading_text}</h{heading_level}>\n")
+            html_content.append(f"<h{heading_level}>{heading_text}"
+                                f"</h{heading_level}>\n")
 
         # Handle unordered list items
         elif line.startswith("-"):
@@ -66,9 +71,10 @@ if __name__ == "__main__":
         elif line:
             if not in_ul and not in_ol:
                 html_content.append("<p>\n")
-            line = line.replace("**", "<b>").replace("**", "</b>")
-            line = line.replace("__", "<em>").replace("__", "</em>")
+            line = line.replace("**", "<b>", 1).replace("**", "</b>", 1)
+            line = line.replace("__", "<em>", 1).replace("__", "</em>", 1)
 
+            # Replace custom [[ ]] with MD5 hash
             while "[[" in line and "]]" in line:
                 start = line.find("[[") + 2
                 end = line.find("]]")
@@ -76,6 +82,7 @@ if __name__ == "__main__":
                 md5_hash = hashlib.md5(to_convert.encode()).hexdigest()
                 line = line.replace(f"[[{to_convert}]]", md5_hash)
 
+            # Replace custom (( )) with text modification
             while "((" in line and "))" in line:
                 start = line.find("((") + 2
                 end = line.find("))")
@@ -86,6 +93,11 @@ if __name__ == "__main__":
             html_content.append(f"{line}\n")
             html_content.append("</p>\n")
 
-    with open(html_file, "w") as html_file:
-        html_file.writelines(html_content)
+    # Ensure any open lists are closed
+    if in_ul:
+        html_content.append("</ul>\n")
+    if in_ol:
+        html_content.append("</ol>\n")
 
+    with open(html_file, "w") as output_file:
+        output_file.writelines(html_content)
