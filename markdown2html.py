@@ -1,138 +1,91 @@
 #!/usr/bin/python3
 """
-    Parsing bold syntax
+Markdown to HTML converter.
 """
+
+import sys
+import os
+import hashlib
+
+def print_usage_and_exit():
+    print("Usage: ./markdown2html.py <input_file> <output_file>", file=sys.stderr)
+    sys.exit(1)
+
+def file_error_and_exit(filename):
+    print(f"Missing {filename}", file=sys.stderr)
+    sys.exit(1)
+
 if __name__ == "__main__":
-    import sys
-    from os import path
-    import re
-    import hashlib
-
-    markD = {"#": "h1", "##": "h2", "###": "h3", "####": "h4", "#####": "h5", "######": "h6", "-": "ul", "*": "ol"}
-
     if len(sys.argv) < 3:
-        sys.stderr.write("Usage: ./markdown2html.py README.md README.html\n")
-        exit(1)
+        print_usage_and_exit()
+    
+    markdown_file = sys.argv[1]
+    html_file = sys.argv[2]
 
-    if not path.exists(sys.argv[1]) or not str(sys.argv[1]).endswith(".md"):
-        sys.stderr.write("Missing " + sys.argv[1] + '\n')
-        exit(1)
+    if not os.path.exists(markdown_file):
+        file_error_and_exit(markdown_file)
 
-    def handleHeadings(pattern):
-        tag = markD[lineSplit[0]]
-        toWrite = line.replace("{} ".format(lineSplit[0]), "<{}>".format(tag))
-        toWrite = toWrite[:-1] + ("</{}>\n".format(tag))
-        fw.write(toWrite)
+    with open(markdown_file, "r") as md_file:
+        markdown_content = md_file.readlines()
 
-    def inlineMarkdown(line, pattern):
-        flag = 0
-        while pattern in line:
-            if not flag:
-                if pattern == "**":
-                    line = line.replace(pattern, "<b>", 1)
-                    flag = 1
-                else:
-                    line = line.replace(pattern, "<em>", 1)
-                    flag = 1
-            else:
-                if pattern == "**":
-                    line = line.replace(pattern, "</b>", 1)
-                    flag = 0
-                else: 
-                    line = line.replace(pattern, "</em>", 1)
-                    flag = 0
-        return line
+    html_content = []
+    in_ul = in_ol = False
 
-    def md5Markdown(line):
-        rep = []
-        while "[[" in line and "]]" in line:
-            rep = []
-            for j in range(len(line)):
-                if not j == len(line) - 1 and line[j] == '[' and line[j + 1] == '[':
-                    rep.append(j)
-                elif not j == len(line) - 1 and line[j] == "]" and line[j + 1] == ']':
-                    rep.append(j)
-            if rep:
-                sliceObj = slice(rep[0], rep[1] + 2)
-            
-            toRep = line[sliceObj]
-            toHash = toRep[2:-2]
-            md = hashlib.md5(toHash.encode()).hexdigest()
-            line = line.replace(toRep, md)
-        return line
+    for line in markdown_content:
+        line = line.strip()
 
-    def caseMarkdown(line):
-        rep = []
-        s = ''
-        while '((' in line:
-            rep = []
-            for j in range(len(line)):
-                if not j == len(line) - 1 and line[j] == '(' and line[j + 1] == '(':
-                    rep.append(j)
-                elif not j == len(line) - 1 and line[j] == ")" and line[j + 1] == ')':
-                    rep.append(j)
-            if rep:
-                sliceObj = slice(rep[0], rep[1] + 2)
-            toRep = line[sliceObj]
-            s = toRep
-            for char in toRep:
-                if char == 'c':
-                    toRep = toRep.replace('c', '')
-                elif char == 'C':
-                    toRep = toRep.replace('C', '')
-            line = line.replace(s, toRep[2:-2])
-        return line 
+        # Handle headings
+        if line.startswith("#"):
+            if in_ul:
+                html_content.append("</ul>\n")
+                in_ul = False
+            if in_ol:
+                html_content.append("</ol>\n")
+                in_ol = False
+            heading_level = len(line.split(' ')[0])
+            heading_text = line[heading_level + 1:]
+            html_content.append(f"<h{heading_level}>{heading_text}</h{heading_level}>\n")
 
-    with open(sys.argv[1], mode='r') as fr, open(sys.argv[2], mode='w+') as fw:
-        first = 0
-        f = 0
-        read = fr.readlines()
-        for i, line in enumerate(read):
-            # For inline markdown
-            if "**" in line:
-                line = inlineMarkdown(line, "**")
-            if "__" in line:
-                line = inlineMarkdown(line, "__")
-            if "[[" in line and "]]" in line:
-                line = md5Markdown(line)
-            if "((" in line and "))" in line:
-                line = caseMarkdown(line) 
-                     
-            # split by spaces
-            lineSplit = line.split(' ')
-            if lineSplit[0] in markD:
-                # Headings
-                if lineSplit[0].startswith('#'):
-                    handleHeadings(lineSplit[0])
-                # Lists
-                elif lineSplit[0].startswith("-") or lineSplit[0].startswith("*"):
-                    tag = markD[lineSplit[0]]
-                    #if its the first item list
-                    if not first:
-                        toWrite = "<{}>\n".format(tag)
-                        fw.write(toWrite)
-                        first = lineSplit[0]
-                    # do every time for '-' or '*'
-                    toWrite = line.replace("{} ".format(lineSplit[0]), "<li>")
-                    toWrite = toWrite[:-1] + ("</li>\n")
-                    fw.write(toWrite)
-                    # if its the last item list
-                    if i is len(read) - 1 or not read[i + 1].startswith("{} ".format(first)):
-                        toWrite = "</{}>\n".format(tag)
-                        fw.write(toWrite)
-                        first = 0
-            else:
-                # paragraphs 
-                if line[0] != "\n":
-                    #first paragraph
-                    if not f:
-                        fw.write("<p>\n")
-                        f = 1
-                    fw.write(line)
-                    # if next line is part of the paragraph
-                    if i != len(read) - 1 and read[i + 1][0] != "\n" and read[i + 1][0] not in markD:
-                        fw.write("<br/>\n")
-                    else: 
-                        fw.write("</p>\n")
-                        f = 0
-        exit(0)
+        # Handle unordered list items
+        elif line.startswith("-"):
+            if not in_ul:
+                html_content.append("<ul>\n")
+                in_ul = True
+            list_item = line[2:]
+            html_content.append(f"<li>{list_item}</li>\n")
+
+        # Handle ordered list items
+        elif line.startswith("*"):
+            if not in_ol:
+                html_content.append("<ol>\n")
+                in_ol = True
+            list_item = line[2:]
+            html_content.append(f"<li>{list_item}</li>\n")
+
+        # Handle paragraphs and line breaks
+        elif line:
+            if not in_ul and not in_ol:
+                html_content.append("<p>\n")
+            line = line.replace("**", "<b>").replace("**", "</b>")
+            line = line.replace("__", "<em>").replace("__", "</em>")
+
+            while "[[" in line and "]]" in line:
+                start = line.find("[[") + 2
+                end = line.find("]]")
+                to_convert = line[start:end]
+                md5_hash = hashlib.md5(to_convert.encode()).hexdigest()
+                line = line.replace(f"[[{to_convert}]]", md5_hash)
+
+            while "((" in line and "))" in line:
+                start = line.find("((") + 2
+                end = line.find("))")
+                to_modify = line[start:end]
+                modified_text = to_modify.replace("c", "").replace("C", "")
+                line = line.replace(f"(({to_modify}))", modified_text)
+
+            html_content.append(f"{line}\n")
+            html_content.append("</p>\n")
+
+    with open(html_file, "w") as html_file:
+        html_file.writelines(html_content)
+
