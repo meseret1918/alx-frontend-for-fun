@@ -7,5 +7,9 @@ Hello
 I'm **a** text
 with __2 lines__
 
-**Or in bold**
+((I will live in Caracas))
+
+But it's [[private]]
+
+So cool!
 

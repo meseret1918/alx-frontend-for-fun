@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 """
-Markdown to HTML converter.
+Markdown to HTML converter with extended features.
 """
 
 import sys
 import os
+import hashlib
 
 
 def print_usage_and_exit():
@@ -31,6 +32,30 @@ def parse_bold_and_italic(line):
     while '__' in line:
         line = line.replace('__', '<em>', 1)
         line = line.replace('__', '</em>', 1)
+
+    return line
+
+
+def parse_special_syntax(line):
+    """
+    Handle special Markdown syntax: ((text)) and [[text]].
+    """
+    # Handle ((text)): remove 'c' (case insensitive)
+    if '((' in line and '))' in line:
+        start = line.index('((') + 2
+        end = line.index('))')
+        text = line[start:end]
+        line = (line[:start - 2] +
+                text.replace('c', '').replace('C', '') +
+                line[end + 2:])
+
+    # Handle [[text]]: convert to MD5 hash
+    while '[[' in line and ']]' in line:
+        start = line.index('[[') + 2
+        end = line.index(']]')
+        text = line[start:end]
+        md5_hash = hashlib.md5(text.encode()).hexdigest()
+        line = line[:start - 2] + md5_hash + line[end + 2:]
 
     return line
 
@@ -95,6 +120,8 @@ if __name__ == "__main__":
             if html_content[-1].strip() != "<p>":
                 html_content.append("<br/>\n")
 
+            # Parse special syntax
+            line = parse_special_syntax(line)
             # Parse bold and italic markdown in text
             line = parse_bold_and_italic(line)
 
