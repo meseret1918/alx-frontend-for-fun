@@ -9,12 +9,14 @@ import hashlib
 
 
 def print_usage_and_exit():
-    print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
+    msg = "Usage: ./markdown2html.py README.md README.html"
+    print(msg, file=sys.stderr)
     sys.exit(1)
 
 
 def file_error_and_exit(filename):
-    print(f"Missing {filename}", file=sys.stderr)
+    msg = f"Missing {filename}"
+    print(msg, file=sys.stderr)
     sys.exit(1)
 
 
@@ -55,7 +57,7 @@ def parse_special_syntax(line):
         end = line.index(']]')
         text = line[start:end]
         md5_hash = hashlib.md5(text.encode()).hexdigest()
-        line = line[:start - 2] + md5_hash + line[end + 2:]
+        line = (line[:start - 2] + md5_hash + line[end + 2:])
 
     return line
 
