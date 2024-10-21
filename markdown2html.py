@@ -33,7 +33,7 @@ if __name__ == "__main__":
         markdown_content = md_file.readlines()
 
     html_content = []
-    in_ul = in_ol = False
+    in_ul = in_ol = in_p = False
 
     for line in markdown_content:
         line = line.strip()
@@ -46,14 +46,20 @@ if __name__ == "__main__":
             if in_ol:
                 html_content.append("</ol>\n")
                 in_ol = False
+            if in_p:
+                html_content.append("</p>\n")
+                in_p = False
+
             heading_level = len(line.split(' ')[0])
-            heading_text = line[heading_level + 1:]
-            html_content.append(f"<h{heading_level}>{heading_text}"
-                                f"</h{heading_level}>\n")
+            heading_text = line[heading_level:].strip()
+            html_content.append(f"<h{heading_level}>{heading_text}</h{heading_level}>\n")
 
         # Handle unordered list items
         elif line.startswith("-"):
             if not in_ul:
+                if in_p:
+                    html_content.append("</p>\n")
+                    in_p = False
                 html_content.append("<ul>\n")
                 in_ul = True
             list_item = line[2:]
@@ -62,6 +68,9 @@ if __name__ == "__main__":
         # Handle ordered list items
         elif line.startswith("*"):
             if not in_ol:
+                if in_p:
+                    html_content.append("</p>\n")
+                    in_p = False
                 html_content.append("<ol>\n")
                 in_ol = True
             list_item = line[2:]
@@ -69,8 +78,9 @@ if __name__ == "__main__":
 
         # Handle paragraphs and line breaks
         elif line:
-            if not in_ul and not in_ol:
+            if not in_ul and not in_ol and not in_p:
                 html_content.append("<p>\n")
+                in_p = True
             line = line.replace("**", "<b>", 1).replace("**", "</b>", 1)
             line = line.replace("__", "<em>", 1).replace("__", "</em>", 1)
 
@@ -91,13 +101,15 @@ if __name__ == "__main__":
                 line = line.replace(f"(({to_modify}))", modified_text)
 
             html_content.append(f"{line}\n")
-            html_content.append("</p>\n")
 
-    # Ensure any open lists are closed
+    # Ensure any open lists or paragraphs are closed
     if in_ul:
         html_content.append("</ul>\n")
     if in_ol:
         html_content.append("</ol>\n")
+    if in_p:
+        html_content.append("</p>\n")
 
     with open(html_file, "w") as output_file:
         output_file.writelines(html_content)
+
