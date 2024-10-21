@@ -14,7 +14,7 @@ def print_usage_and_exit():
 
 
 def file_error_and_exit(filename):
-    print(f"Missing {filename}", file=sys.stderr)  # Correct message format
+    print(f"Missing {filename}", file=sys.stderr)
     sys.exit(1)
 
 
@@ -26,16 +26,16 @@ if __name__ == "__main__":
     html_file = sys.argv[2]
 
     if not os.path.exists(markdown_file):
-        file_error_and_exit(markdown_file)  # Check if the input file exists
+        file_error_and_exit(markdown_file)
 
     with open(markdown_file, "r") as md_file:
         markdown_content = md_file.readlines()
 
     html_content = []
-    in_ul = in_ol = False
+    in_ul = in_ol = in_paragraph = False
 
     for line in markdown_content:
-        line = line.strip()
+        line = line.rstrip()
 
         # Handle headings
         if line.startswith("#"):
@@ -45,6 +45,10 @@ if __name__ == "__main__":
             if in_ol:
                 html_content.append("</ol>\n")
                 in_ol = False
+            if in_paragraph:
+                html_content.append("</p>\n")
+                in_paragraph = False
+
             heading_level = len(line.split(' ')[0])
             heading_text = line[heading_level + 1:]
             html_content.append(
@@ -53,6 +57,9 @@ if __name__ == "__main__":
 
         # Handle unordered list items
         elif line.startswith("-"):
+            if in_paragraph:
+                html_content.append("</p>\n")
+                in_paragraph = False
             if not in_ul:
                 html_content.append("<ul>\n")
                 in_ul = True
@@ -61,16 +68,34 @@ if __name__ == "__main__":
 
         # Handle ordered list items
         elif line.startswith("*"):
+            if in_paragraph:
+                html_content.append("</p>\n")
+                in_paragraph = False
             if not in_ol:
                 html_content.append("<ol>\n")
                 in_ol = True
             list_item = line[2:]
             html_content.append(f"<li>{list_item}</li>\n")
 
-        # Handle paragraphs and line breaks
+        # Handle paragraphs and line breaks within paragraphs
         elif line:
-            if not in_ul and not in_ol:
+            if in_ul:
+                html_content.append("</ul>\n")
+                in_ul = False
+            if in_ol:
+                html_content.append("</ol>\n")
+                in_ol = False
+
+            if not in_paragraph:
                 html_content.append("<p>\n")
+                in_paragraph = True
+
+            # Add line break if not the first line in the paragraph
+            if (line != markdown_content[0] and in_paragraph and
+                    html_content[-1].strip() != "<p>"):
+                html_content.append("<br/>\n")
+
+            # Handle bold and italic markdown and add text
             line = line.replace("**", "<b>", 1).replace("**", "</b>", 1)
             line = line.replace("__", "<em>", 1).replace("__", "</em>", 1)
 
@@ -91,13 +116,20 @@ if __name__ == "__main__":
                 line = line.replace(f"(({to_modify}))", modified_text)
 
             html_content.append(f"{line}\n")
-            html_content.append("</p>\n")
 
-    # Ensure any open lists are closed
+        # Handle empty lines (end of a paragraph)
+        else:
+            if in_paragraph:
+                html_content.append("</p>\n")
+                in_paragraph = False
+
+    # Ensure any open tags are closed
     if in_ul:
         html_content.append("</ul>\n")
     if in_ol:
         html_content.append("</ol>\n")
+    if in_paragraph:
+        html_content.append("</p>\n")
 
     with open(html_file, "w") as output_file:
         output_file.writelines(html_content)
