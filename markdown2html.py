@@ -9,13 +9,12 @@ import hashlib
 
 
 def print_usage_and_exit():
-    print("Usage: ./markdown2html.py <input_file> <output_file>",
-          file=sys.stderr)
+    print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
     sys.exit(1)
 
 
 def file_error_and_exit(filename):
-    print(f"Missing {filename}", file=sys.stderr)
+    print(f"Missing {filename}", file=sys.stderr)  # Correct message format
     sys.exit(1)
 
 
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     html_file = sys.argv[2]
 
     if not os.path.exists(markdown_file):
-        file_error_and_exit(markdown_file)
+        file_error_and_exit(markdown_file)  # Check if the input file exists
 
     with open(markdown_file, "r") as md_file:
         markdown_content = md_file.readlines()
