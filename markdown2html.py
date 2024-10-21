@@ -9,14 +9,12 @@ import hashlib
 
 
 def print_usage_and_exit():
-    """Print usage information and exit."""
     print("Usage: ./markdown2html.py <input_file> <output_file>",
           file=sys.stderr)
     sys.exit(1)
 
 
 def file_error_and_exit(filename):
-    """Print file error and exit."""
     print(f"Missing {filename}", file=sys.stderr)
     sys.exit(1)
 
