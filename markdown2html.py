@@ -18,6 +18,38 @@ def file_error_and_exit(filename):
     sys.exit(1)
 
 
+def parse_bold_and_italic(line):
+    """
+    Replace Markdown bold (**) and italic (__) syntax with the corresponding
+    HTML tags.
+    """
+    # Replace bold syntax (**bold text**) with <b>bold text</b>
+    while '**' in line:
+        line = line.replace('**', '<b>', 1)
+        line = line.replace('**', '</b>', 1)
+
+    # Replace italic syntax (__italic text__) with <em>italic text</em>
+    while '__' in line:
+        line = line.replace('__', '<em>', 1)
+        line = line.replace('__', '</em>', 1)
+
+    return line
+
+
+def parse_md5(content):
+    """
+    Convert the content into its MD5 hash (lowercase).
+    """
+    return hashlib.md5(content.encode()).hexdigest()
+
+
+def remove_c_letters(content):
+    """
+    Remove all occurrences of 'c' or 'C' from the content.
+    """
+    return content.replace('c', '').replace('C', '')
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print_usage_and_exit()
@@ -64,6 +96,7 @@ if __name__ == "__main__":
                 html_content.append("<ul>\n")
                 in_ul = True
             list_item = line[2:]
+            list_item = parse_bold_and_italic(list_item)  # Parse bold/italic
             html_content.append(f"<li>{list_item}</li>\n")
 
         # Handle ordered list items
@@ -75,6 +108,7 @@ if __name__ == "__main__":
                 html_content.append("<ol>\n")
                 in_ol = True
             list_item = line[2:]
+            list_item = parse_bold_and_italic(list_item)  # Parse bold/italic
             html_content.append(f"<li>{list_item}</li>\n")
 
         # Handle paragraphs and line breaks within paragraphs
@@ -95,25 +129,26 @@ if __name__ == "__main__":
                     html_content[-1].strip() != "<p>"):
                 html_content.append("<br/>\n")
 
-            # Handle bold and italic markdown and add text
-            line = line.replace("**", "<b>", 1).replace("**", "</b>", 1)
-            line = line.replace("__", "<em>", 1).replace("__", "</em>", 1)
-
-            # Replace custom [[ ]] with MD5 hash
-            while "[[" in line and "]]" in line:
+            # Handle custom [[ ]] with MD5 hash
+            if "[[" in line and "]]" in line:
                 start = line.find("[[") + 2
                 end = line.find("]]")
-                to_convert = line[start:end]
-                md5_hash = hashlib.md5(to_convert.encode()).hexdigest()
-                line = line.replace(f"[[{to_convert}]]", md5_hash)
+                if start < end:
+                    to_convert = line[start:end]
+                    md5_hash = parse_md5(to_convert)
+                    line = line.replace(f"[[{to_convert}]]", md5_hash)
 
-            # Replace custom (( )) with text modification
-            while "((" in line and "))" in line:
+            # Handle custom (( )) with text modification
+            if "((" in line and "))" in line:
                 start = line.find("((") + 2
                 end = line.find("))")
-                to_modify = line[start:end]
-                modified_text = to_modify.replace("c", "").replace("C", "")
-                line = line.replace(f"(({to_modify}))", modified_text)
+                if start < end:
+                    to_modify = line[start:end]
+                    modified_text = remove_c_letters(to_modify)
+                    line = line.replace(f"(({to_modify}))", modified_text)
+
+            # Parse bold and italic markdown in text
+            line = parse_bold_and_italic(line)
 
             html_content.append(f"{line}\n")
 
