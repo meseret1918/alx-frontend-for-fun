@@ -1,0 +1,91 @@
+/* Base styles for the body */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header section */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1em 0;
+}
+
+.header-container {
+    display: flex; /* Enable flexbox */
+    justify-content: space-between; /* Space between elements */
+    align-items: center; /* Align items to the center */
+}
+
+/* Section HERO section */
+.section-hero {
+    position: relative; /* Added relative positioning */
+    margin-top: -8.5rem; /* Added negative margin */
+}
+
+.hero-homepage {
+    display: flex; /* Enable flexbox */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+    justify-content: center; /* Center items vertically */
+    min-height: 50vh; /* Minimum height of 50% viewport height */
+}
+
+.hero-article {
+    background-size: 150rem 100rem; /* Set background size */
+    background-position: 50% 0; /* Center background image */
+}
+
+.hero-article::before { /* Targeting before pseudo element */
+    content: ""; /* Empty content */
+    background: rgba(0, 0, 0, 0.8); /* Dark overlay */
+    position: absolute; /* Absolute positioning */
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 0; /* Below other content */
+}
+
+.section-inner {
+    text-align: center; /* Center align text */
+    align-items: center; /* Center items */
+    min-height: 40vh; /* Minimum height for inner section */
+}
+
+.section-body {
+    position: relative; /* Relative positioning */
+    padding: 7rem 0 0; /* Padding for the section body */
+    z-index: 2; /* Above the overlay */
+}
+
+.section-category {
+    color: var(--color-white); /* Set color to variable */
+    text-transform: uppercase; /* Uppercase text */
+}
+
+/* Section SERVICES ============================= */
+.section-services .row {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+    margin: -1rem; /* Updated margin */
+}
+
+.col-1-3 {
+    width: calc((100% / 3) - 2rem); /* Updated width */
+    margin: 1rem; /* Added margin */
+}
+
+.col-1-2 {
+    width: calc((100% / 2) - 2rem); /* Updated width */
+    margin: 1rem; /* Added margin */
+}
+
+/* Section ABOUT US ============================= */
+.section-about-us .col-1-3 {
+    align-self: center; /* Center align each column item */
+}
+
+/*** ARTICLE PAGE ***/
+/* Section HERO (article) ============================= */

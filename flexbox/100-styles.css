@@ -1,0 +1,24 @@
+/* Ensure all images inside post class take full width */
+.post-content img {
+    width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Style for the first paragraph in post-content */
+.post-content p:first-child {
+    font-size: var(--font-size-x-large); /* Use the defined variable for large font size */
+}
+
+/* Styles for figcaption class inside post-content */
+.img-caption {
+    margin: 1rem 0; /* Margin for spacing */
+    padding: 0 .5rem; /* Padding for visual appeal */
+    font-size: var(--font-size-small); /* Small font size from variable */
+    color: var(--color-grey, #a0a0a0); /* Grey color, fallback to #a0a0a0 if variable not defined */
+    text-align: center; /* Center align text */
+}
+
+/* If variable for color-grey does not exist, you can define it like this */
+:root {
+    --color-grey: #a0a0a0; /* Define the grey color variable */
+}

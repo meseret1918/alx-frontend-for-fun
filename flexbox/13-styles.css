@@ -1,0 +1,160 @@
+/* Base styles for the body */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header section */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1em 0;
+}
+
+.header-container {
+    display: flex; /* Enable flexbox */
+    justify-content: space-between; /* Space between elements */
+    align-items: center; /* Align items to the center */
+}
+
+/* Section HERO section */
+.section-hero {
+    position: relative; /* Added relative positioning */
+    margin-top: -8.5rem; /* Added negative margin */
+}
+
+.hero-homepage {
+    display: flex; /* Enable flexbox */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+    justify-content: center; /* Center items vertically */
+    min-height: 50vh; /* Minimum height of 50% viewport height */
+}
+
+.hero-article {
+    background-size: 150rem 100rem; /* Set background size */
+    background-position: 50% 0; /* Center background image */
+}
+
+.hero-article::before { /* Targeting before pseudo element */
+    content: ""; /* Empty content */
+    background: rgba(0, 0, 0, 0.8); /* Dark overlay */
+    position: absolute; /* Absolute positioning */
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 0; /* Below other content */
+}
+
+.section-inner {
+    text-align: center; /* Center align text */
+    align-items: center; /* Center items */
+    min-height: 40vh; /* Minimum height for inner section */
+}
+
+.section-body {
+    position: relative; /* Relative positioning */
+    padding: 7rem 0 0; /* Padding for the section body */
+    z-index: 2; /* Above the overlay */
+}
+
+.section-category {
+    color: var(--color-white); /* Set color to variable */
+    text-transform: uppercase; /* Uppercase text */
+}
+
+/* Section MAIN ARTICLE ============================= */
+.main-article {
+    padding: 5rem 0; /* Padding for main article */
+}
+
+.container {
+    max-width: 1200px; /* Max width for the container */
+    margin: 0 auto; /* Center the container */
+}
+
+.post {
+    display: flex; /* Enable flexbox for the post */
+}
+
+/* Post
+    ============================= */
+.post-content {
+    width: 100%; /* Full width for post content */
+}
+
+.post-aside {
+    order: -1; /* Change the order of the aside */
+    min-width: 20%; /* Minimum width for aside */
+}
+
+/* Post Meta
+    ============================= */
+.post-meta-list {
+    display: flex; /* Enable flexbox */
+    flex-direction: column; /* Stack items vertically */
+}
+
+.post-meta-list strong {
+    color: var(--color-primary); /* Set color to variable */
+    font-size: var(--font-size-small); /* Set font size to variable */
+    text-transform: uppercase; /* Uppercase text */
+    display: block; /* Block display for strong */
+}
+
+[class^="post-meta-"] {
+    margin-bottom: 1rem; /* Bottom margin for meta items */
+    padding-bottom: 1rem; /* Bottom padding for meta items */
+    border-bottom: 0.2rem solid var(--color-light-grey); /* Bottom border for meta items */
+}
+
+[class^="post-meta-"]:last-child {
+    border: none; /* Remove border for last item */
+    margin-bottom: 3rem; /* Bottom margin for last item */
+}
+
+/* Tag list
+    ============================= */
+.tag-list {
+    padding: 0; /* Remove padding */
+    list-style: none; /* Remove list style */
+}
+
+.tag-list li {
+    display: inline; /* Inline display for tag list items */
+}
+
+.tag-list li::after {
+    content: ", "; /* Add comma after each item */
+}
+
+.tag-list li:last-child::after {
+    content: ""; /* Remove comma after last item */
+}
+
+/* Section SERVICES ============================= */
+.section-services .row {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+    margin: -1rem; /* Updated margin */
+}
+
+.col-1-3 {
+    width: calc((100% / 3) - 2rem); /* Updated width */
+    margin: 1rem; /* Added margin */
+}
+
+.col-1-2 {
+    width: calc((100% / 2) - 2rem); /* Updated width */
+    margin: 1rem; /* Added margin */
+}
+
+/* Section ABOUT US ============================= */
+.section-about-us .col-1-3 {
+    align-self: center; /* Center align each column item */
+}
+
+/*** ARTICLE PAGE ***/
+/* Section HERO (article) ============================= */

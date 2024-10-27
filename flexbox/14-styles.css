@@ -1,0 +1,19 @@
+/* Social Navigation Styles */
+.social-nav {
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove padding */
+}
+
+.social-nav li {
+    display: inline; /* Inline display for list items */
+    margin-right: 1rem; /* Space between items */
+}
+
+.social-nav li a {
+    text-decoration: none; /* Remove underline from links */
+    color: var(--color-primary); /* Set link color to primary variable */
+}
+
+.social-nav li a:hover {
+    text-decoration: underline; /* Underline on hover */
+}

@@ -1,0 +1,8 @@
+/* Section Latest news ============================= */
+.section-latest-news .row {
+    display: flex;             /* Ensure it's a flex container */
+    flex-direction: row-reverse; /* Reverse the order of flex items */
+}
+
+/*** 4. CARD ***/
+/* Existing card styles here */

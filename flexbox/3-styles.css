@@ -1,0 +1,30 @@
+/* Base styles for the body */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header styles */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1em 0;
+    text-align: center;
+}
+
+/* Section styles */
+section {
+    padding: 20px;
+}
+
+/* Section SERVICES ============================= */
+.section-services .row {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+}
+
+/* Other section styles can go here */
+
+/*** 4. CARD ***/
+/* Add your card styles here */
