@@ -1,24 +1,25 @@
-.section-services {
-    /* Your styles here */
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.section-works {
-    /* Your styles here */
+h2 {
+    text-align: center;
 }
 
-.section-about-us {
-    /* Your styles here */
-}
-
-.section-latest-news {
-    /* Your styles here */
-}
-
-.section-testimonial {
-    /* Your styles here */
-}
-
+/* Additional styles for sections */
+.section-services,
+.section-works,
+.section-about-us,
+.section-latest-news,
+.section-testimonial,
 .section-contact {
-    /* Your styles here */
+    padding: 20px;
+    margin: 10px;
+    border: 1px solid #ddd; /* Optional styling for sections */
 }
+
+/* Flexbox styles can be added here if needed */
 
