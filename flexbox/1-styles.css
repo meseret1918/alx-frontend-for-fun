@@ -1,25 +1,13 @@
-/* Base styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-h2 {
-    text-align: center;
-}
-
-/* Additional styles for sections */
+/* Styles for each section */
 .section-services,
 .section-works,
 .section-about-us,
 .section-latest-news,
 .section-testimonial,
 .section-contact {
-    padding: 20px;
-    margin: 10px;
-    border: 1px solid #ddd; /* Optional styling for sections */
+    padding: 20px; /* Add padding for spacing */
+    margin: 10px 0; /* Add margin for separation */
+    background-color: #f9f9f9; /* Light background for sections */
+    border: 1px solid #ccc; /* Optional: Add border for visibility */
 }
-
-/* Flexbox styles can be added here if needed */
 
